@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <meta name="robots" content="noindex,nofollow">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self'; form-action 'self'; base-uri 'none'">
+    <title>Set up Hostpeek</title>
+    <link rel="stylesheet" href="/styles.css?v=14">
+    <script src="/setup.js?v=1" defer></script>
+  </head>
+  <body>
+    <header class="topbar"><span class="brand">Hostpeek</span></header>
+    <main class="setup-main">
+      <section class="panel" aria-labelledby="setup-title">
+        <h1 id="setup-title">Set up your preview service</h1>
+        <p class="intro">Connect your database and choose how you want to sign in.</p>
+        <ol class="setup-progress" aria-label="Setup progress">
+          <li aria-current="step">1. Introduction</li><li>2. Application</li><li>3. Database</li><li>4. Preferences</li>
+        </ol>
+        {{setup_error}}
+        <form method="post" action="/" class="setup-form" id="setup-form">
+          <input type="hidden" name="csrf" value="{{setup_token}}">
+          <section data-step aria-labelledby="introduction-title">
+            <h2 id="introduction-title" tabindex="-1">Introduction</h2>
+        <div class="setup-guide">
+          <h2>Prepare your hosting</h2>
+          <ol>
+            <li>Point your domain and its wildcard to this server. For <code>preview.example.org</code>, also add <code>*.preview.example.org</code>.</li>
+            <li>Set both document roots to this application's <code>public/</code> folder. Keep the other files one level above it.</li>
+            <li>Install an SSL certificate covering both names. With external DNS, wildcard validation may need a DNS TXT record.</li>
+            <li>Open <strong>Manage My Databases</strong> or <strong>MySQL Databases</strong>. Create a dedicated database and user, add the user to that database, and grant all privileges.</li>
+          </ol>
+        </div>
+            {{setup_checks}}
+          </section>
+          <section data-step aria-labelledby="application-title">
+            <h2 id="application-title" tabindex="-1">Application settings</h2>
+          <fieldset>
+            <legend class="visually-hidden">Application settings</legend>
+            <div class="field"><label for="name">Name</label><input id="name" name="name" value="{{name}}" required><span class="hint">Used in the header and browser tab.</span></div>
+            <div class="field"><label for="base-url">Preview service URL</label><input id="base-url" name="base_url" type="url" value="{{base_url}}" placeholder="https://preview.example.org" required><span class="hint">The base domain, without a path or wildcard.</span></div>
+            <div class="field"><label for="manage-password">Sign-in password</label><input id="manage-password" name="manage_password" type="password" autocomplete="new-password" required><span class="hint">Required to create and manage previews.</span></div>
+            <div class="field"><label for="timezone">Timezone</label><input id="timezone" name="timezone" value="{{timezone}}" required><span class="hint">For expiration dates, for example Europe/Amsterdam.</span></div>
+          </fieldset>
+          </section>
+          <section data-step aria-labelledby="database-title">
+            <h2 id="database-title" tabindex="-1">Database settings</h2>
+          <fieldset>
+            <legend class="visually-hidden">Database settings</legend>
+            <div class="form-grid">
+              <div class="field"><label for="database-name">Database name</label><input id="database-name" name="database_name" value="{{database_name}}" autocomplete="off" placeholder="account_preview" required></div>
+              <div class="field"><label for="database-user">Database user</label><input id="database-user" name="database_user" value="{{database_user}}" autocomplete="off" placeholder="account_preview" required></div>
+            </div>
+            <p class="hint">Include the cPanel account prefix in both names.</p>
+            <div class="field"><label for="database-password">Database password</label><input id="database-password" name="database_password" type="password" autocomplete="new-password" required></div>
+
+              <div class="form-grid">
+                <div class="field"><label for="database-host">Host</label><input id="database-host" name="database_host" value="{{database_host}}" required></div>
+                <div class="field"><label for="database-port">Port</label><input id="database-port" name="database_port" type="number" min="1" max="65535" value="{{database_port}}" required></div>
+              </div>
+          </fieldset>
+          </section>
+          <section data-step aria-labelledby="preferences-title" class="setup-preferences">
+            <h2 id="preferences-title" tabindex="-1">Preferences</h2>
+            <p class="hint">Optional branding. You can change these settings later in config.php.</p>
+            <div class="field"><label for="logo-light">Light-mode logo</label><input id="logo-light" name="logo_light" value="{{logo_light}}" placeholder="/assets/logo.svg"></div>
+            <div class="field"><label for="logo-dark">Dark-mode logo</label><input id="logo-dark" name="logo_dark" value="{{logo_dark}}" placeholder="/assets/logo-dark.svg"><span class="hint">Optional. Upload logos into public/assets. Leave these blank to show the name.</span></div>
+            <div class="field"><label for="favicon">Favicon</label><input id="favicon" name="favicon" value="{{favicon}}"><span class="hint">A local SVG, PNG or ICO file under /assets/.</span></div>
+            <details class="setup-options"><summary>Advanced</summary>
+            <div class="field"><label for="preview-ttl">Default preview lifetime (seconds)</label><input id="preview-ttl" name="preview_ttl" type="number" min="1" value="{{preview_ttl}}" required><span class="hint">3600 is one hour. You can choose an expiration date when creating each preview.</span></div>
+            <fieldset class="protocol-options"><legend>Default target connection</legend>
+              <label class="check-label"><input type="radio" name="upstream_scheme" value="https" {{upstream_scheme_https_checked}}> HTTPS (port 443)</label>
+              <label class="check-label"><input type="radio" name="upstream_scheme" value="http" {{upstream_scheme_http_checked}}> HTTP (port 80)</label>
+              <label class="check-label"><input type="checkbox" name="allow_self_signed" value="1" {{allow_self_signed_checked}}> Accept unverified target certificates</label>
+              <p class="hint">Allows self-signed, expired or mismatched certificates on the destination server. Your preview domain still needs its own valid certificate.</p>
+            </fieldset>
+          </details>
+          <p class="hint">Setup saves these settings in <code>config.php</code> and creates the database tables. You can edit that file later in cPanel File Manager.</p>
+          </section>
+          <div class="setup-navigation">
+            <button class="secondary-button" id="setup-back" type="button" hidden>Back</button>
+            <span id="setup-step-label" aria-live="polite"></span>
+            <button class="primary-button" id="setup-next" type="button" hidden>Continue</button>
+            <button class="primary-button" id="setup-submit" type="submit">Complete setup</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<ruleset name="Website Preview">
+    <rule ref="PSR12" />
+    <file>src</file>
+    <file>tests</file>
+    <file>bin</file>
+    <file>config.example.php</file>
+    <file>public/index.php</file>
+</ruleset>

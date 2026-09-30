@@ -1,0 +1,33 @@
+{
+    "name": "rob1998/hostpeek",
+    "description": "Self-hosted website preview service for cPanel",
+    "type": "project",
+    "require": {
+        "php": ">=8.2",
+        "ext-curl": "*",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-zlib": "*"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.13"
+    },
+    "autoload": {
+        "psr-4": {
+            "SitePreview\\": "src/"
+        }
+    },
+    "scripts": {
+        "lint": "phpcs --standard=PSR12 src tests bin config.example.php public/index.php",
+        "test": [
+            "php tests/test.php",
+            "php tests/setup.php",
+            "php tests/url.php",
+            "php tests/proxy.php"
+        ]
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "license": "GPL-3.0-only"
+}

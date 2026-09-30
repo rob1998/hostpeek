@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Protected preview · {{name}}</title>
+    <link rel="icon" href="{{favicon}}">
+    <link rel="stylesheet" href="{{asset_origin}}/styles.css?v=14">
+  </head>
+  <body class="signed-out">
+    <header class="topbar">
+      <a class="brand" href="{{asset_origin}}/" aria-label="{{name}} home">{{brand}}</a>
+    </header>
+    <main class="manage-main">
+      <section class="panel" aria-labelledby="page-title">
+        <h1 id="page-title">Protected preview</h1>
+        <p class="intro">Enter the password to view this preview.</p>
+        <form class="login-form" action="/__preview/unlock" method="post">
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+          </div>
+          <p class="message" role="alert" {{message_hidden}}>{{message}}</p>
+          <button class="primary-button" type="submit">Open preview</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

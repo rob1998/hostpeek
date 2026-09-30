@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version from VERSION and CHANGELOG.md (for example 0.1.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
+        with:
+          php-version: '8.2'
+          extensions: curl, pdo_mysql, zlib
+          tools: composer:v2
+          coverage: none
+      - name: Validate version and release notes
+        env:
+          VERSION: ${{ inputs.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [[ "$GITHUB_REF" == refs/heads/main ]] || { echo 'Release from main only'; exit 1; }
+          [[ "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || exit 1
+          [[ "$(cat VERSION)" == "$VERSION" ]] || { echo 'VERSION does not match'; exit 1; }
+          gh api "repos/$GITHUB_REPOSITORY/tags" --paginate --jq '.[].name' > /tmp/tags
+          if grep -Fxq "v$VERSION" /tmp/tags; then echo 'Tag already exists'; exit 1; fi
+          python3 - <<'PY'
+          import os, re
+          from pathlib import Path
+          text = Path('CHANGELOG.md').read_text()
+          match = re.search(r'^## \[' + re.escape(os.environ['VERSION']) + r'\][^\n]*\n(.*?)(?=^## |\Z)', text, re.M | re.S)
+          if not match or not match[1].strip():
+              raise SystemExit('Missing changelog entry')
+          Path('/tmp/release-notes.md').write_text(match[1].strip() + '\n\nDownload the Hostpeek ZIP below. It includes production dependencies and the setup wizard; GitHub’s source archives do not include dependencies.\n')
+          PY
+      - name: Check application
+        run: |
+          composer install --prefer-dist --no-interaction
+          composer validate --strict
+          composer lint
+          composer test
+      - name: Build deployment ZIP
+        run: bash bin/build-release.sh
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          gh release create "v$VERSION" "dist/hostpeek-$VERSION.zip" "dist/hostpeek-$VERSION.zip.sha256" \
+            --target "$GITHUB_SHA" --title "Hostpeek v$VERSION" --notes-file /tmp/release-notes.md --latest

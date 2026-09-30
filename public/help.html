@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'">
+    <meta name="color-scheme" content="light dark">
+    <title>{{name}}</title>
+    <link rel="icon" href="{{favicon}}">
+    <link rel="stylesheet" href="/styles.css?v=13">
+    <script src="/ui.js?v=4" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="{{name}} home">{{brand}}</a>
+      <nav class="header-actions" aria-label="Account" {{account_hidden}}>
+        <a id="help-link" class="secondary-button header-help" href="/help" aria-current="page" {{account_hidden}}><span data-icon="help"></span><span>Help</span></a>
+        <button id="logout-button" class="secondary-button header-logout" type="button" {{account_hidden}}><span data-icon="logout"></span><span>Sign out</span></button>
+      </nav>
+    </header>
+    <main class="help-main">
+      <section class="panel" aria-labelledby="page-title">
+        <h1 id="page-title">Setup and help</h1>
+        <p class="intro">Configuration, common questions and troubleshooting.</p>
+        <p class="manage-link"><a href="/manage">Back to manage previews</a></p>
+
+        <p class="message" id="message" role="status" hidden></p>
+        <h2>Configuration</h2>
+        <details>
+          <summary>Where do I change the settings?</summary>
+          <p>Open <code>config.php</code> in your cPanel File Manager. It sits beside <code>public/</code>, outside the public web folder. Save a backup before changing it. The main settings are:</p>
+          <ul>
+            <li><code>name</code>, <code>logo_light</code>, <code>logo_dark</code> and <code>favicon</code> control the service branding.</li>
+            <li><code>base_url</code> is the public address. Its DNS, document root and certificate must cover the base hostname and wildcard.</li>
+            <li><code>upstream_scheme</code> sets the default for bare hostnames. A pasted HTTP or HTTPS URL overrides it for that preview.</li>
+            <li><code>allow_self_signed</code> controls certificate checks when connecting to HTTPS targets.</li>
+            <li><code>preview_ttl</code> sets the default lifetime. Each preview can have its own expiry under Advanced.</li>
+            <li><code>timezone</code> controls date and time entry and display.</li>
+            <li><code>manage_password</code> protects creation and management.</li>
+          </ul>
+          <p>Logo and favicon files belong in <code>public/assets/</code>; use paths such as <code>/assets/logo.svg</code>. Keep the database password and <code>hash_secret</code> private. The hash secret should stay stable after setup.</p>
+        </details>
+        <details>
+          <summary>Where do I find the database details?</summary>
+          <p>In cPanel, open MySQL Database Wizard (or Manage My Databases). Create a database and a database user, then grant that user privileges on the database. Put the database host, full cPanel-prefixed name, username and password in <code>config.php</code>. On most cPanel hosts the database host is <code>localhost</code>.</p>
+        </details>
+        <details>
+          <summary>How do I change the default expiry or timezone?</summary>
+          <p>Set <code>preview_ttl</code> in seconds; <code>3600</code> means one hour from creation. For <code>timezone</code>, enter the name for your region, such as <code>Europe/Amsterdam</code>. Find yours in the <a href="https://www.php.net/manual/en/timezones.php" target="_blank" rel="noopener noreferrer">official list of supported timezones</a>. Changing these settings does not change when existing previews expire.</p>
+        </details>
+
+        <h2>Troubleshooting</h2>
+        <details>
+          <summary>The service or wildcard preview does not open.</summary>
+          <p>Check that DNS records for both the base hostname and <code>*</code> point to this hosting account. In cPanel, both hostnames must use the service's <code>public/</code> folder as their document root, and the installed certificate must cover the base and wildcard names. DNS changes can take time to appear.</p>
+        </details>
+        <details>
+          <summary>The preview shows a certificate error or the wrong target page.</summary>
+          <p>The target hostname is sent to the server at the destination IP, including as TLS SNI for HTTPS. Check that the target hosting account has that hostname configured and serves it at the selected IP. <code>allow_self_signed</code> only skips certificate verification for target HTTPS connections; it does not fix the target's virtual-host configuration or change the preview domain certificate.</p>
+        </details>
+        <details>
+          <summary>What does the HTTPS setting do?</summary>
+          <p><code>upstream_scheme</code> is the default when entering a hostname without a protocol: <code>https</code> uses port 443 and <code>http</code> uses port 80. Pasting an HTTP or HTTPS URL selects that protocol for the preview. For HTTPS targets, <code>allow_self_signed</code> set to <code>false</code> verifies the target certificate; <code>true</code> also accepts invalid or mismatched certificates.</p>
+        </details>
+        <details>
+          <summary>Some images, styles or links do not work.</summary>
+          <p>The preview extracts the hostname from your URL and rewrites links for that hostname. Websites that load assets from other hostnames, build URLs dynamically in JavaScript, or rely on browser APIs such as service workers may need adjustments to work through a preview.</p>
+        </details>
+        <details>
+          <summary>Forms or sign-in on the target site do not work.</summary>
+          <p>The relay supports browsing with GET and HEAD requests. It does not forward form submissions or other request methods, so target-site sign-in, checkout and other write actions are not available.</p>
+        </details>
+        <details>
+          <summary>Why did I have to sign in again?</summary>
+          <p>You are signed out automatically after a period of inactivity, usually 24 minutes. The exact time depends on your hosting settings. Searching, switching pages in the management area or saving a preview restarts the timer. Leaving the page open or browsing a preview does not.</p>
+        </details>
+        <details>
+          <summary>Can search engines index preview pages?</summary>
+          <p>Preview responses include no-index headers, and the wildcard <code>robots.txt</code> disallows crawling.</p>
+        </details>
+      </section>
+    </main>
+  </body>
+</html>

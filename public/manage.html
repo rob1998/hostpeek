@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'">
+    <meta name="color-scheme" content="light dark">
+    <title>{{name}}</title>
+    <link rel="icon" href="{{favicon}}">
+    <link rel="stylesheet" href="/styles.css?v=13">
+    <script src="/ui.js?v=4" defer></script>
+    <script src="/manage.js?v=14" defer></script>
+  </head>
+  <body class="{{manage_body_class}}">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="{{name}} home">{{brand}}</a>
+      <nav class="header-actions" aria-label="Account" {{account_hidden}}>
+        <a id="help-link" class="secondary-button header-help" href="/help" {{account_hidden}}><span data-icon="help"></span><span>Help</span></a>
+        <button id="logout-button" class="secondary-button header-logout" type="button" {{account_hidden}}><span data-icon="logout"></span><span>Sign out</span></button>
+      </nav>
+    </header>
+    <main class="manage-main">
+      <section class="panel" aria-labelledby="page-title">
+        <h1 id="page-title">Manage previews</h1>
+        <p class="intro">Find and manage existing preview links.</p>
+        <form id="login-form" class="login-form" {{login_hidden}}>
+          <div class="field">
+            <label for="manage-password">Password</label>
+            <input id="manage-password" name="password" type="password" autocomplete="current-password" required>
+          </div>
+          <button class="primary-button" type="submit">Sign in</button>
+        </form>
+        <p class="message" id="message" role="status" aria-live="polite" hidden></p>
+
+        <section id="manager" {{manager_hidden}}>
+          <div class="manager-tools">
+            <label class="search-field" for="search">Search previews
+              <input id="search" type="search" placeholder="Link, original URL or IP address" autocomplete="off">
+            </label>
+            <button id="delete-expired" class="secondary-button" type="button" hidden><span data-icon="trash"></span><span>Delete all expired</span></button>
+            <a class="primary-button" href="/"><span data-icon="plus"></span><span>Create preview</span></a>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th><button class="sort-button" data-sort="label" type="button">Preview link</button></th>
+                <th><button class="sort-button" data-sort="original_url" type="button">Original</button></th>
+                <th><button class="sort-button" data-sort="ip" type="button">Destination IP</button></th>
+                <th><button class="sort-button" data-sort="expires_at" type="button">Expires</button></th>
+                <th><button class="sort-button" data-sort="password_protected" type="button">Password</button></th>
+                <th>Actions</th>
+              </tr></thead>
+              <tbody id="preview-rows"><tr><td colspan="6" class="empty-cell">Loading previews…</td></tr></tbody>
+            </table>
+          </div>
+          <div class="table-footer">
+            <span id="results-count" aria-live="polite"></span>
+            <div class="pagination" hidden>
+              <button id="previous-page" class="secondary-button" type="button"><span data-icon="back"></span><span>Previous</span></button>
+              <span id="page-label"></span>
+              <button id="next-page" class="secondary-button" type="button"><span>Next</span><span data-icon="next"></span></button>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+    <dialog id="edit-dialog" aria-labelledby="edit-title">
+      <form id="edit-form" class="dialog-form">
+        <h2 id="edit-title">Edit preview</h2>
+        <p id="edit-error" role="status"></p>
+        <input name="label" type="hidden">
+        <div class="field"><label for="edit-hostname">URL or hostname</label><input id="edit-hostname" name="hostname" required></div>
+        <div class="field"><label for="edit-ip">Destination IP</label><input id="edit-ip" name="ip" required maxlength="45"></div>
+        <div class="field"><label for="edit-expires">Expires</label><input id="edit-expires" name="expires" type="datetime-local" required></div>
+        <div class="field"><label for="edit-password">New preview password</label><input id="edit-password" name="password" type="password" autocomplete="new-password" maxlength="72"><span class="hint">Leave blank to keep the current password.</span><label class="check-label"><input name="removePassword" type="checkbox"> Remove the current password</label></div>
+        <div class="dialog-actions"><button id="cancel-edit" class="secondary-button" type="button">Cancel</button><button class="primary-button" type="submit">Save changes</button></div>
+      </form>
+    </dialog>
+    <dialog id="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-description">
+      <form id="delete-form" class="dialog-form">
+        <h2 id="delete-title">Delete preview?</h2>
+        <p id="delete-description"></p>
+        <p id="delete-error" role="status"></p>
+        <div class="dialog-actions">
+          <button id="cancel-delete" class="secondary-button" type="button" autofocus>Cancel</button>
+          <button id="confirm-delete" class="danger-button" type="submit"><span data-icon="trash"></span><span>Delete preview</span></button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

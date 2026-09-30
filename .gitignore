@@ -1,0 +1,13 @@
+/config.php
+/config.php.setup.lock
+/.preview-config-*
+/vendor/
+/dist/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+
+/brag-output*/
+/storage/
